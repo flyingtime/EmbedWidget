@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     //QtWebView::initialize();
 
     //新建一个QWebView放入qml osr item中
-//    QWebView osrWebView;
-//    osrWebView.setUrl(QUrl("http://www.baidu.com"));
-//    w.rootItem()->setProperty("osrItem_OSRWidget", QVariant::fromValue(&osrWebView));
+    //    QWebView osrWebView;
+    //    osrWebView.setUrl(QUrl("http://www.baidu.com"));
+    //    w.rootItem()->setProperty("osrItem_OSRWidget", QVariant::fromValue(&osrWebView));
 
     QPushButton* btn = new QPushButton;
     btn->setStyleSheet("background-color:red;");
