@@ -1,34 +1,56 @@
 #include <QApplication>
 #include <QPushButton>
-#include "QmlOSRExpMainWindow.h"
-#include "WidgetOSRItem.h"
+#include "qpreview.h"
+#include <QVBoxLayout>
+#include <QApplication>
+#include <QQuickWidget>
+#include <QPushButton>
+#include <QDebug>
+#include <QQmlProperty>
+#include <QQuickView>
+#include "WidgetAnchor.h"
+#include "findItem.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL, true);
+    QApplication app(argc, argv);
 
-    //register diy qml tools
-    qmlRegisterType<WidgetOSRItem>("Diy.WidgetOSRItem",1,0, "WidgetOSRItem");
+    qDebug() << "start app";
 
-    QmlOSRExpMainWindow w;
-    w.show();
-    w.load(QUrl("qrc:/WidgetOSRExp.qml"));
+    auto pqw = new QQuickWidget;
+    const QUrl url(QStringLiteral("qrc:/EmbedWidget.qml"));
+    pqw->setSource(url);
+    pqw->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    pqw->setAttribute(Qt::WA_DeleteOnClose);
+    pqw->resize(1280,720);
 
+    QQmlEngine* engine = pqw->engine();
+    QQmlComponent component(engine,url);
+    QObject *object = component.create();
 
-    //新建一个QWebView放入qml osr item中
-    //QtWebView::initialize();
+    qDebug() << "Property value:" << QQmlProperty::read(object, "someNumber").toInt();
 
-    //新建一个QWebView放入qml osr item中
-    //    QWebView osrWebView;
-    //    osrWebView.setUrl(QUrl("http://www.baidu.com"));
-    //    w.rootItem()->setProperty("osrItem_OSRWidget", QVariant::fromValue(&osrWebView));
+    auto pOwt = new QWidget(pqw);
+    pOwt->setStyleSheet("background-color:grey;");
 
-    QPushButton* btn = new QPushButton;
-    btn->setStyleSheet("background-color:red;");
-    btn->setAttribute(Qt::WA_NativeWindow);
-    w.rootItem()->setProperty("osrItem_OSRWidget", QVariant::fromValue(btn));
+    auto x = FindItemByName(pqw,"videoPlugin");
+    if(x != NULL) {
+        qDebug() << x->height();
+        qDebug() << x->width();
+        pOwt->move(x->x(),x->y());
+        pOwt->resize(x->width(),x->height());
+        //new WidgetAnchor(pOwt, x);
+    } else {
+        qDebug() << "layoutItem not found!!!";
+    }
 
-    int res =  a.exec();
-    return res;
+    QPreview *videoPlugin = new QPreview();
+    QObject *item = pqw->rootObject();
+    QObject::connect(item, SIGNAL(qmlSignal(QString)),
+                     videoPlugin, SLOT(cppSlot(QString)));
+    videoPlugin->CreatePlugin(pOwt);
+    videoPlugin->InitPlugin();
+    pqw->show();
+
+    return app.exec();
 }

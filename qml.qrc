@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>WidgetOSRExp.qml</file>
+        <file>EmbedWidget.qml</file>
     </qresource>
 </RCC>
